@@ -1,0 +1,3 @@
+import MattScripts.MoveToView
+reload(MattScripts.MoveToView)
+MattScripts.MoveToView.MoveToView()

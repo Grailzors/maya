@@ -1,0 +1,6 @@
+import maya.cmds as mc
+
+for i in mc.ls(selection = True):
+    newName = i + "_low"
+    
+    mc.rename(i, newName)

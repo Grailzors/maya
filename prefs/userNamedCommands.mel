@@ -1,0 +1,16 @@
+//Maya Preference 2018 (Release 1)
+//
+//
+
+nameCommand
+	-annotation "WireframeOnShadedToggleNameCommand"
+	-sourceType "mel"
+	-command ("WireframeOnShadedToggle")
+	WireframeOnShadedToggleNameCommand;
+
+nameCommand
+	-annotation "dR_viewXrayTGLNameCommand"
+	-sourceType "mel"
+	-command ("dR_viewXrayTGL")
+	dR_viewXrayTGLNameCommand;
+

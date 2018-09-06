@@ -1,0 +1,12 @@
+//Maya Preference 2018 (Release 1)
+//
+//
+
+runTimeCommand
+	-annotation "toggle wireframe on shaded"
+	-category "Custom Scripts"
+	-hotkeyCtx ""
+	-commandLanguage "python"
+	-command ("import MattScripts.WireFrameOnShaded\nreload(MattScripts.WireFrameOnShaded)\nMattScripts.WireFrameOnShaded.ToggleWireframeOnShaded()\n")
+	WireframeOnShadedToggle;
+

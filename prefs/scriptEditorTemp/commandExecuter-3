@@ -1,0 +1,3 @@
+import MattScripts.HardenUVEdges
+reload(MattScripts.HardenUVEdges)
+MattScripts.HardenUVEdges.HardenUVEdges()

@@ -1,0 +1,610 @@
+global proc shelf_MentalRay () {
+    global string $gBuffStr;
+    global string $gBuffStr0;
+    global string $gBuffStr1;
+
+
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 34
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Create Object Light" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Object Light" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "Object" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.2 
+        -image "pointlight.png" 
+        -image1 "pointlight.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "source miLoadMayatomr; activateMentalRay; source mrAddItemsToCreateLightMenu;mrAddObjectLight;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 34
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Create Physical Light" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Physical Area Light" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "Area" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.2 
+        -image "arealight.png" 
+        -image1 "arealight.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "source miLoadMayatomr; activateMentalRay; source mrAddItemsToCreateLightMenu;mrAddPhysicalAreaLight;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 34
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Physical Sun" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Physical Sun" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "Sun" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.2 
+        -image "directionallight.png" 
+        -image1 "directionallight.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "source miLoadMayatomr; activateMentalRay; source mrAddItemsToCreateLightMenu;mrAddPhysicalSunLight;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 34
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Environment Sky" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Environment Sky" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "Sky" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.2 
+        -image "ambientlight.png" 
+        -image1 "ambientlight.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "source miLoadMayatomr; activateMentalRay; source mrAddItemsToCreateLightMenu;mrAddEnvironmentSkyLight;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 34
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Environment Image (IBL)" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Environment Image (IBL)" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "IBL" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.2 
+        -image "ambientlight.png" 
+        -image1 "ambientlight.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "source miLoadMayatomr; activateMentalRay; source mrAddItemsToCreateLightMenu;mrAddEnvironmentImageLight;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    separator
+        -enable 1
+        -width 12
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -style "shelf" 
+        -horizontal 0
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 34
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Assign MILA Material; Right-click for a different base component" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Assign MILA" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "MILA" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0.262162 0.262162 0.262162 0.8 
+        -image "render_mila_material.png" 
+        -image1 "render_mila_material.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "import maya.mel as mel;mel.eval('source miLoadMayatomr;activateMentalRay;');import mentalray.mila as mila;mila.assign_new_mila_material_to_selected('mila_diffuse_reflection')" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+        -mi "Diffuse" ( "import maya.mel as mel;mel.eval('source miLoadMayatomr;activateMentalRay;');import mentalray.mila as mila;mila.assign_new_mila_material_to_selected('mila_diffuse_reflection')" )
+        -mip 0
+        -mi "Diffuse (Scatter)" ( "import maya.mel as mel;mel.eval('source miLoadMayatomr;activateMentalRay;');import mentalray.mila as mila;mila.assign_new_mila_material_to_selected('mila_mix_subsurface_scatter'')" )
+        -mip 1
+        -mi "Diffuse (Translucent)" ( "import maya.mel as mel;mel.eval('source miLoadMayatomr;activateMentalRay;');import mentalray.mila as mila;mila.assign_new_mila_material_to_selected('mila_mix_translucent')" )
+        -mip 2
+        -mi "Reflective" ( "import maya.mel as mel;mel.eval('source miLoadMayatomr;activateMentalRay;');import mentalray.mila as mila;mila.assign_new_mila_material_to_selected('mila_mix_reflective')" )
+        -mip 3
+        -mi "Reflective (Anisotropic)" ( "import maya.mel as mel;mel.eval('source miLoadMayatomr;activateMentalRay;');import mentalray.mila as mila;mila.assign_new_mila_material_to_selected('mila_mix_reflective_aniso')" )
+        -mip 4
+        -mi "Reflective (Plastic)" ( "import maya.mel as mel;mel.eval('source miLoadMayatomr;activateMentalRay;');import mentalray.mila as mila;mila.assign_new_mila_material_to_selected('mila_layer_reflective_plastic')" )
+        -mip 5
+        -mi "Reflective (Paint)" ( "import maya.mel as mel;mel.eval('source miLoadMayatomr;activateMentalRay;');import mentalray.mila as mila;mila.assign_new_mila_material_to_selected('mila_layer_reflective_paint')" )
+        -mip 6
+        -mi "Transmissive" ( "import maya.mel as mel;mel.eval('source miLoadMayatomr;activateMentalRay;');import mentalray.mila as mila;mila.assign_new_mila_material_to_selected('mila_layer_transmissive')" )
+        -mip 7
+        -mi "Transmissive (Clear)" ( "import maya.mel as mel;mel.eval('source miLoadMayatomr;activateMentalRay;');import mentalray.mila as mila;mila.assign_new_mila_material_to_selected('mila_layer_transmissive_clear')" )
+        -mip 8
+        -mi "Transmissive (Distance)" ( "import maya.mel as mel;mel.eval('source miLoadMayatomr;activateMentalRay;');import mentalray.mila as mila;mila.assign_new_mila_material_to_selected('mila_layer_transmissive_distance')" )
+        -mip 9
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 34
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Assign MDL Material" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Assign MDL" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "MDL" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0.345946 0.345946 0.345946 0.8 
+        -image "render_mib_illum_phong.png" 
+        -image1 "render_mib_illum_phong.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "import maya.mel as mel;mel.eval('source miLoadMayatomr;activateMentalRay;');import maya.cmds as cmds;selected = cmds.ls(selection=True);mdl_material = cmds.shadingNode(\"mdl_material\", asShader=True);cmds.select(selected);cmds.hyperShade(assign=mdl_material)" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    separator
+        -enable 1
+        -width 12
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -style "shelf" 
+        -horizontal 0
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 34
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Open mental ray Toolkit" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Open mental ray Toolkit" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "Toolkit" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0.248322 0.248322 0.248322 0.8 
+        -image "mentalray-logo-left.png" 
+        -image1 "mentalray-logo-left.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "import maya.mel as mel;mel.eval('source miLoadMayatomr;activateMentalRay;');import mr_dock; mr_dock.create_mr_dock()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 34
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Toggle interactive mental ray in viewport with Viewport2" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Toggle mental ray viewport" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "mrVP" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0.248322 0.248322 0.248322 0.8 
+        -image "mentalray-logo-left.png" 
+        -image1 "mentalray-logo-left.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "import maya.mel as mel;mel.eval('source miLoadMayatomr;activateMentalRay;');import mr_dock; mr_dock.toggle_viewport()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    separator
+        -enable 1
+        -width 12
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -style "shelf" 
+        -horizontal 0
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 34
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Open Render Log Verbosity Settings" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Open Verbosity Settings" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "Log" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0.248322 0.248322 0.248322 0.8 
+        -image "mentalray-logo-left.png" 
+        -image1 "mentalray-logo-left.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "source miLoadMayatomr;activateMentalRay;source mrVerbositySettings;mrVerbositySettings()" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 34
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Open mental ray Render Resource Manager" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Open Resource Manager" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "ResMgr" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0.248322 0.248322 0.248322 0.8 
+        -image "mentalray-logo-left.png" 
+        -image1 "mentalray-logo-left.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "import maya.mel as mel;mel.eval('source miLoadMayatomr;activateMentalRay;');import mr_resource_mgr;mr_resource_mgr.create_resource_window()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    separator
+        -enable 1
+        -width 12
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -style "shelf" 
+        -horizontal 0
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 34
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Open mental ray 3.14 for Maya User Guide; Right-click for Quick License Setup documentation." 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Open Documentation" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "Doc" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0.248322 0.248322 0.248322 0.8 
+        -image "mentalray-logo-left.png" 
+        -image1 "mentalray-logo-left.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "import os;import webbrowser;doc_path = os.getenv(\"MENTALRAY_LOCATION\") + \"doc/\";webbrowser.open_new_tab(\"file:///\" + doc_path + \"plugin/index.html\")" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+        -mi "Quick Professional GPU License Setup" ( "import os;import webbrowser;doc_path = os.getenv(\"MENTALRAY_LOCATION\") + \"doc/\";webbrowser.open_new_tab(\"file:///\" + doc_path + \"license/pro/index.html\")" )
+        -mip 0
+        -mi "Quick Network License Setup" ( "import os;import webbrowser;doc_path = os.getenv(\"MENTALRAY_LOCATION\") + \"doc/\";webbrowser.open_new_tab(\"file:///\" + doc_path + \"license/network/index.html\")" )
+        -mip 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 34
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Open mental ray blog." 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Open blog" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "Blog" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0.248322 0.248322 0.248322 0.8 
+        -image "mentalray-logo-left.png" 
+        -image1 "mentalray-logo-left.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "import webbrowser;webbrowser.open_new_tab(\"http://blog.mentalray.com\")" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 34
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Open NVIDIA mental ray for Maya forum." 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Open forum" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "Forum" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0.248322 0.248322 0.248322 0.8 
+        -image "mentalray-logo-left.png" 
+        -image1 "mentalray-logo-left.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "import webbrowser;webbrowser.open_new_tab(\"https://forum.nvidia-arc.com/forumdisplay.php?215-NVIDIA-mental-ray-for-Maya\")" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 34
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "NVIDIA mental ray Product page where one can purchase a mental ray license" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "NVIDIA mental ray" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "mentalray-logo-middle.png" 
+        -image1 "mentalray-logo-middle.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "import webbrowser;webbrowser.open_new_tab(\"http://www.nvidia.com/object/nvidia-mental-ray-products.html\")" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 34
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "NVIDIA mental ray Product page where one can purchase a mental ray license" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "NVIDIA mental ray" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "mentalray-logo-right.png" 
+        -image1 "mentalray-logo-right.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "import webbrowser;webbrowser.open_new_tab(\"http://www.nvidia.com/object/nvidia-mental-ray-products.html\")" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+
+} 
