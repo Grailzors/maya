@@ -1,5 +1,6 @@
 import maya.cmds as mc
 import random as rand
+from functools import partial
 
 
 class PolyGroupsTool:
@@ -25,23 +26,33 @@ class PolyGroupsTool:
 			
 			mc.select(sel, replace = True)
 			mc.sets(sel, edit = True, forceElement = pGroup)
+			
+			self.UpdatePolyGroupList()
 		
 		def AddToPolyGroup(self, pGroup):
 			sel = mc.ls(selection = True)
 			
 			if sel:
 				mc.sets(sel, edit = True, forceElement = pGroup)
+				mc.warning("Added selection to %s" % ())
 		
-		def RenamePolyGroup(self, pGroup):
+		def RenamePolyGroup(self):
 			newName = mc.textField(renameField, query = True, text = True)
+			oldName = mc.textScrollList(listField, query = True, selectItem = True)[0]
 			
-			mc.rename(pGroup,  newName)
+			mc.rename(oldName,  newName)
+			mc.rename(oldName + "SG", newName + "SG")
+			
+			self.UpdatePolyGroupList()
+			
 
-		def ChangePolyGroupColor(self) :
+		def ChangePolyGroupColor(self, pGroup) :
 			r = mc.floatField(rField, query = True, value = True)
-			g = 
-			b = 
-		
+			g = mc.floatField(gField, query = True, value = True)
+			b = mc.floatField(bField, query = True, value = True)
+			
+			mc.setAttr("%s.color" %  (pGroup), r, g, b, type = 'double3')
+			
 		def MergePolyGroupd(self):
 			#method
 		
@@ -49,7 +60,8 @@ class PolyGroupsTool:
 			#method
 		
 		def UpdatePolyGroupList(self):
-			#method
+			mc.textScrollList(listField, edit = True, removeAll = True)
+			mc.textScrollList(listField, edit = True, append = self.GetPolyGroups())
 		
 		def GetPolyGroups(self):
 			shaders = mc.ls(type = "lambert")
@@ -90,14 +102,13 @@ class PolyGroupsTool:
 
 		#Column 1 -------------
 		mc.separator(parent = column1, height = 20)
-		listView = mc.scrollField(parent = column1,
-						editable = False, 
-						wordWrap = False, 
-						width = 200, 
-						height = 325)
+		listFeild = mc.textScrollList(parent = column1,
+                width = 200,
+                height = 325)
 		mc.separator(parent = column1, height = 10)
 		mc.button(label = "Refresh", 
 						parent = column1, 
+						command = partial(self, UpdatePolyGroupList),
 						width = 100)
 
 
@@ -118,6 +129,7 @@ class PolyGroupsTool:
 		renameField = mc.textField("test", parent = column2, width = 200)
 		mc.button(label = "Rename pGroup", 
 						parent = column2, 
+						command = partial(self, RenamePolyGroup),
 						width = 100)
 
 		mc.separator(parent = column2, height = 10)
