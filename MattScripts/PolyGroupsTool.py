@@ -6,6 +6,7 @@ from functools import partial
 class PolyGroupsTool:
 
 	def __init__(self):
+		#init
 		
 	def CreatePolyGroup(self):
 		sel = mc.ls(selection = True, flatten = True)
@@ -45,7 +46,6 @@ class PolyGroupsTool:
 			
 			self.UpdatePolyGroupList()
 			
-
 		def ChangePolyGroupColor(self, pGroup) :
 			r = mc.floatField(rField, query = True, value = True)
 			g = mc.floatField(gField, query = True, value = True)
