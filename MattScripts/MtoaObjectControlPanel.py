@@ -1,24 +1,73 @@
 import maya.cmds as mc
+from functools import partial
 
-
-def AddConstant():
-    print ""
-        
-def SetOpaque():
-    print ""
+def AddConstant(*arg):
+    sel = mc.ls(selection = True)
     
-def SetColor():
+    if sel:
+        for i in sel:
+            mesh = mc.pickWalk(i, direction = "down")[0]
+            
+            if mc.attributeQuery("mtoa_constant_color", node = mesh, exists = True) == False:
+                objectColor =  mc.colorSliderGrp("objectColor", query = True, rgbValue = True)
+                
+                print mesh
+                mc.addAttr(longName = "mtoa_constant_color", usedAsColor = True, attributeType = "float3")
+                mc.addAttr(longName = "arnoldColorR", attributeType = "float", parent = "mtoa_constant_color")
+                mc.addAttr(longName = "arnoldColorG", attributeType = "float", parent = "mtoa_constant_color")
+                mc.addAttr(longName = "arnoldColorB", attributeType = "float", parent = "mtoa_constant_color")
+                
+                mc.setAttr("%s.arnoldColorR" % (mesh), objectColor[0])
+                mc.setAttr("%s.arnoldColorG" % (mesh), objectColor[1])
+                mc.setAttr("%s.arnoldColorB" % (mesh), objectColor[2])
+                
+        mc.select(sel, replace = True)
+        UpdateConstantList()
+
+def GetOpaque(*arg):
+    sel = mc.ls(selection = True)
+    
+    if sel:
+        for i in sel:
+            i = mc.pickWalk(i, direction = "down")[0]
+            return mc.getAttr("%s.aiOpaque" % i)
+    
+    mc.select(sel, replace = True)
+
+def SetOpaque(*arg):
     print ""
 
-def UpdateConstantList():
-	if mc.textScrollList("listField", query = True, exists = True):
-	mc.textScrollList("listField", edit = True, removeAll = True)
-	mc.textScrollList("listField", edit = True, append = GetConstantObjectss())
-			
-def GetConstantObjects():
+def GetMatte(*arg):
+    sel = mc.ls(selection = True)
+    
+    if sel:
+        for i in sel:
+            i = mc.pickWalk(i, direction = "down")[0]
+            return mc.getAttr("%s.aiMatte" % i)
+            
+    mc.select(sel, replace = True)
+
+def SetMatte(*arg):
+    print ""
+
+def GetColor(*arg):
+    #This is for getting the color from a already set color in the mtoa list
+    print ""
+
+def UpdateColor(*arg):
+    objectColor =  mc.colorSliderGrp("objectColor", query = True, rgbValue = True)
+    
+    if mc.textScrollList("listField", query = True, exists = True):        
+        for i in mc.textScrollList("listField",  query = True, selectItem = True):
+            print i
+            mc.setAttr("%s.arnoldColorR" % (i), objectColor[0])
+            mc.setAttr("%s.arnoldColorG" % (i), objectColor[1])
+            mc.setAttr("%s.arnoldColorB" % (i), objectColor[2])
+
+def GetConstantObjects(*arg):
     mesh = mc.ls(type = "mesh")
     meshList = []
-	
+
     if mesh:
         for i in mesh:
             try:
@@ -28,6 +77,11 @@ def GetConstantObjects():
                 continue
 
     return meshList
+
+def UpdateConstantList(*arg):
+    if mc.textScrollList("listField", query = True, exists = True):
+        mc.textScrollList("listField", edit = True, removeAll = True)
+        mc.textScrollList("listField", edit = True, append = GetConstantObjects())
     
 def InstantiateUI():
 	winID = "constantTool"
@@ -55,27 +109,29 @@ def InstantiateUI():
 	#Column 1 -------------
 	mc.separator(parent = column1, height = 20)
 	listField = mc.textScrollList("listField", parent = column1,
-			#append = pgt.PolyGroupTools().GetPolyGroups(),
+            allowMultiSelection = True,
+			append = GetConstantObjects(),
 			width = 200,
 			height = 325)
 	mc.separator(parent = column1, height = 10)
 	mc.button(label = "Refresh", 
 					parent = column1, 
-					#command = "pGroupTool.pGroupTools.PolyGroupTools().UpdatePolyGroupList()",
+					command = partial(UpdateConstantList),
 					width = 100)
-
-
+					
 	#Column 2 -------------
 	#Render Stats
 	mc.separator(parent = column2, height = 20)
 	
 	mc.text("Render Stats", parent=column2, enable=False)
 	mc.separator(parent = column2, height = 10)
-	mc.button(label="Add mtoa_constant_color")
+	mc.button(label="Add mtoa_constant_color",
+                    command = partial(AddConstant))
 	mc.separator(parent = column2, height = 5)	
 	objectColor = mc.colorSliderGrp("objectColor", parent = column2, 
 	                label='Object Color', 
 	                hsv=(0, 0, 0),
+                    changeCommand = partial(UpdateColor),
 	                columnWidth3=(70,50,80),
 	                columnAlign3=("left", "left", "left"))
 	
@@ -134,5 +190,3 @@ def InstantiateUI():
 	mc.menuItem(label="smooth")
 
 	mc.showWindow(winID)
-	
-InstantiateUI()	
