@@ -24,7 +24,7 @@ def AddConstant(*arg):
         mc.select(sel, replace = True)
         UpdateConstantList()
 
-def GetOpaque(*arg):
+def GetOpaque():
     sel = mc.ls(selection = True)
     
     if sel:
@@ -35,24 +35,34 @@ def GetOpaque(*arg):
     mc.select(sel, replace = True)
 
 def SetOpaque(*arg):
-    print ""
+    if mc.textScrollList("listField", query = True, exists = True):        
+        for i in mc.textScrollList("listField",  query = True, selectItem = True):
+            mc.setAttr("%s.aiOpaque", GetOpaque())
 
-def GetMatte(*arg):
+def GetMatte():
     sel = mc.ls(selection = True)
     
     if sel:
         for i in sel:
             i = mc.pickWalk(i, direction = "down")[0]
-            return mc.getAttr("%s.aiMatte" % i)
+            
             
     mc.select(sel, replace = True)
 
 def SetMatte(*arg):
-    print ""
+    if mc.textScrollList("listField", query = True, exists = True):        
+        for i in mc.textScrollList("listField",  query = True, selectItem = True):
+           return mc.getAttr("%s.aiMatte" % i)
 
-def GetColor(*arg):
+def GetColor():
     #This is for getting the color from a already set color in the mtoa list
-    print ""
+        if mc.textScrollList("listField", query = True, exists = True):        
+        for i in mc.textScrollList("listField",  query = True, selectItem = True):
+            return mc.getAttr("%s.mtoa_constant_color" % i)
+
+def SetColor(*arg):
+    if mc.colorSliderGrp("objectcolor", query = True, exists = True):
+        mc.colorSliderGrp("objectcolor", rgbValue = GetColor())
 
 def UpdateColor(*arg):
     objectColor =  mc.colorSliderGrp("objectColor", query = True, rgbValue = True)
@@ -63,6 +73,9 @@ def UpdateColor(*arg):
             mc.setAttr("%s.arnoldColorR" % (i), objectColor[0])
             mc.setAttr("%s.arnoldColorG" % (i), objectColor[1])
             mc.setAttr("%s.arnoldColorB" % (i), objectColor[2])
+
+def ListSelectCommand(*arg):
+    
 
 def GetConstantObjects(*arg):
     mesh = mc.ls(type = "mesh")
@@ -111,6 +124,7 @@ def InstantiateUI():
 	listField = mc.textScrollList("listField", parent = column1,
             allowMultiSelection = True,
 			append = GetConstantObjects(),
+            selectCommand = partial(ListSelectCommand),
 			width = 200,
 			height = 325)
 	mc.separator(parent = column1, height = 10)
