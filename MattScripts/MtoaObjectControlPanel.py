@@ -30,14 +30,19 @@ def GetOpaque():
     if sel:
         for i in sel:
             i = mc.pickWalk(i, direction = "down")[0]
-            return mc.getAttr("%s.aiOpaque" % i)
+            return int(mc.getAttr("%s.aiOpaque" % (i)))
     
     mc.select(sel, replace = True)
 
-def SetOpaque(*arg):
+def SetOpaque():
     if mc.textScrollList("listField", query = True, exists = True):        
         for i in mc.textScrollList("listField",  query = True, selectItem = True):
-            mc.setAttr("%s.aiOpaque", GetOpaque())
+			print GetOpaque()
+			#mc.setAttr("%s.aiOpaque" % (i), GetOpaque())
+			#Set the UI Element
+			
+			
+			#mc.radioButtonGrp("objectOpaque", edit = True, GetOpaque())
 
 def GetMatte():
     sel = mc.ls(selection = True)
@@ -45,38 +50,47 @@ def GetMatte():
     if sel:
         for i in sel:
             i = mc.pickWalk(i, direction = "down")[0]
-            
-            
+             
     mc.select(sel, replace = True)
 
-def SetMatte(*arg):
+def SetMatte():
     if mc.textScrollList("listField", query = True, exists = True):        
         for i in mc.textScrollList("listField",  query = True, selectItem = True):
-           return mc.getAttr("%s.aiMatte" % i)
+			print GetMatte()
+			mc.setAttr("%s.aiMatte" % i, GetMatte())
+			
 
 def GetColor():
     #This is for getting the color from a already set color in the mtoa list
         if mc.textScrollList("listField", query = True, exists = True):        
             for i in mc.textScrollList("listField",  query = True, selectItem = True):
-                return mc.getAttr("%s.mtoa_constant_color" % i)
+                return mc.getAttr("%s.mtoa_constant_color" % (i))[0]
 
-def SetColor(*arg):
-    if mc.colorSliderGrp("objectcolor", query = True, exists = True):
-        mc.colorSliderGrp("objectcolor", rgbValue = GetColor())
+def SetColor():	
+	if mc.colorSliderGrp("objectColor", query = True, exists = True):
+		mc.colorSliderGrp("objectColor", edit = True, rgbValue = GetColor())
 
 def UpdateColor(*arg):
     objectColor =  mc.colorSliderGrp("objectColor", query = True, rgbValue = True)
     
     if mc.textScrollList("listField", query = True, exists = True):        
-        for i in mc.textScrollList("listField",  query = True, selectItem = True):
-            print i
-            mc.setAttr("%s.arnoldColorR" % (i), objectColor[0])
-            mc.setAttr("%s.arnoldColorG" % (i), objectColor[1])
-            mc.setAttr("%s.arnoldColorB" % (i), objectColor[2])
+			for i in mc.textScrollList("listField",  query = True, selectItem = True):
+				#print i
+				mc.setAttr("%s.arnoldColorR" % (i), objectColor[0])
+				mc.setAttr("%s.arnoldColorG" % (i), objectColor[1])
+				mc.setAttr("%s.arnoldColorB" % (i), objectColor[2])
 
 def ListSelectCommand(*arg):
-    print ""
-
+	print "Object Selected"
+	
+	if mc.textScrollList("listField", query = True, exists = True):   
+		SetColor()
+		SetOpaque()
+		#SetMatte()
+		
+		#mc.select(mc.textScrollList("listField",  query = True, selectItem = True), replace = True)
+	
+	
 def GetConstantObjects(*arg):
     mesh = mc.ls(type = "mesh")
     meshList = []
@@ -142,6 +156,7 @@ def InstantiateUI():
     mc.button(label="Add mtoa_constant_color",
                     command = partial(AddConstant))
     mc.separator(parent = column2, height = 5)  
+	
     objectColor = mc.colorSliderGrp("objectColor", parent = column2, 
                     label='Object Color', 
                     hsv=(0, 0, 0),
@@ -151,26 +166,28 @@ def InstantiateUI():
     
     mc.separator(parent = column2, height = 5)
     otherConstant = mc.textField("otherConstant", 
+					enable = False,
                     parent=column2, 
                     width=200)
     mc.separator(parent = column2, height = 5)
     mc.button(label = "Set Custom Constant", 
+					enable = False,
                     parent = column2, 
                     width = 120)
     mc.separator(parent = column2, height = 5)
-    objectOpaque = mc.radioButtonGrp(parent=column2, 
+	
+    objectOpaque = mc.checkBoxGrp("objectOpaque", parent=column2, 
                     label="Object Opaque", 
-                    numberOfRadioButtons=2, 
-                    labelArray2=("On", "Off"),
+                    label1=("On / Off"),
                     vertical=True,
                     columnAlign2=("left", "left"),
                     width=200)
     
     mc.separator(parent = column2, height = 5)
-    objectMatte = mc.radioButtonGrp(parent=column2, 
+	
+    objectMatte = mc.checkBoxGrp("objectMatte", parent=column2, 
                     label="Object Matte", 
-                    numberOfRadioButtons=2, 
-                    labelArray2=("On", "Off"),
+                    label1=("On / Off"),
                     vertical=True,
                     columnAlign2=("left", "left"),
                     width=200)
