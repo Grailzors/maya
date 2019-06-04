@@ -69,6 +69,8 @@ def GetColor():
 def SetColor():	
 	if mc.colorSliderGrp("objectColor", query = True, exists = True):
 		mc.colorSliderGrp("objectColor", edit = True, rgbValue = GetColor())
+        
+        
 
 def UpdateColor(*arg):
     objectColor =  mc.colorSliderGrp("objectColor", query = True, rgbValue = True)
@@ -88,7 +90,7 @@ def ListSelectCommand(*arg):
 		SetOpaque()
 		#SetMatte()
 		
-		#mc.select(mc.textScrollList("listField",  query = True, selectItem = True), replace = True)
+		mc.select(mc.textScrollList("listField",  query = True, selectItem = True), replace = True)
 	
 	
 def GetConstantObjects(*arg):
