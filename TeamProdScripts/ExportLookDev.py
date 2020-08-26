@@ -3,7 +3,7 @@ import maya.cmds as mc
 import os
 
 ### Stick in its own module ####
-class ProjectData:
+class AssetData:
 
 	def __init__(self):
 		self.rootPath = mc.file(query = True, expandName = True) 
@@ -40,23 +40,26 @@ class ProjectData:
 		return newName
 
 
-proj = ProjectData()
+asset = AssetData()
 
 
 def main():
-	print "Hello World"
-	print proj.rootPath
-	print proj.cachePath
-	print proj.cacheName
-	print proj.sceneName
-	print proj.assetName
+	#print "Hello World"
+	#print asset.rootPath
+	#print asset.cachePath
+	#print asset.cacheName
+	#print asset.sceneName
+	#print asset.assetName
+
+	sEngine = GetShadingEngine()
 
 	print "\n### BEGINING LOOKDEV CACHE ###"
 	print "------------------------------"
-	CheckContext(proj.sceneName)
-	CheckShaderName(proj.assetName, GetShaders(GetShadingEngine()))
-	SetRelativePath(proj.texturePath)
-	ExportShadersXML(proj.cachePath, proj.cacheName, GetShadingEngine(), GetGeo(GetShadingEngine()))
+	CheckContext(asset.sceneName)
+	CheckShaderName(asset.assetName, GetShaders(sEngine))
+	SetRelativePath(asset.texturePath)
+	RenameShadingEngine(sEngine)
+	ExportShadersXML(asset.cachePath, asset.cacheName, sEngine, GetGeo(sEngine))
 
 	print "------------------------------"
 	print "### LOOKDEV CACHE FINISHED ###'\n"
@@ -151,8 +154,22 @@ def GetGeo(shadingEngine):
 	return geoSet
 
 
-def RenameShadingEngine():
-	pass
+def RenameShadingEngine(shadingEngine):
+	for i in shadingEngine:
+		newName = ""
+
+		if mc.listConnections(i, type = "aiStandardSurface"):
+			#print mc.listConnections(i, type = "aiStandardSurface")[0]
+			newName = mc.listConnections(i, type = "aiStandardSurface")[0] + "SG"
+
+
+		if mc.listConnections(i, type = "aiStandardHair"):
+			#print mc.listConnections(i, type = "aiStandardHair")[0]
+			newName = mc.listConnections(i, type = "aiStandardHair")[0] + "SG"
+
+		mc.rename(i, newName)
+
+	sEngine = GetShadingEngine()
 
 
 def ExportShadersXML(path, cache, shadingEngine, geo):
@@ -169,6 +186,7 @@ def ExportShadersXML(path, cache, shadingEngine, geo):
 	tree.write(os.path.join(path, "%s_%s_%s.xml" % (cache.split("_")[0], cache.split("_")[1]+"Shaders", cache.split("_")[2])))
 
 	print "Export Shader Assignments as XML: %s" % (path)
+
 
 ###WORK ON THIS ONE DOESNT WORK###
 def ExportSetsXML(path, cache, set, geo):
