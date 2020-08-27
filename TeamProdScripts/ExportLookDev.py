@@ -15,17 +15,19 @@ class AssetData:
 		self.assetName = self.sceneName.split("_")[0]
 		self.cacheName = self.CreateCacheName()
 
+		self.CreateDir()
+
 
 	def CreateDir(self):
-		print "Checking DIrectory exists"
+		print "Checking Directory exists"
 		
-		if not os.path.exists(self.cachePath):
-			print "Creating Path: %s" % (self.cachePath)
-			os.makedirs(self.cachePath)   
+		if not os.path.exists(os.path.join(self.cachePath, self.cacheName)):
+			print "Creating Path: %s" % (os.path.join(self.cachePath, self.cacheName))
+			os.makedirs(os.path.join(self.cachePath, self.cacheName))   
 
 
 	def CreateCacheName(self):
-		self.CreateDir()
+		#self.CreateDir()
 		newName = "Test"
 
 		if os.path.isfile(os.path.join(self.cachePath, self.sceneName)):
@@ -36,7 +38,7 @@ class AssetData:
 			print "Made :", newName
 		else:
 			newName = self.sceneName
-		
+
 		return newName
 
 
@@ -44,25 +46,20 @@ asset = AssetData()
 
 
 def main():
-	#print "Hello World"
-	#print asset.rootPath
-	#print asset.cachePath
-	#print asset.cacheName
-	#print asset.sceneName
-	#print asset.assetName
-
-	sEngine = GetShadingEngine()
-
 	print "\n### BEGINING LOOKDEV CACHE ###"
 	print "------------------------------"
 	CheckContext(asset.sceneName)
-	CheckShaderName(asset.assetName, GetShaders(sEngine))
+	CheckShaderName(asset.assetName, GetShaders(GetShadingEngine()))
 	SetRelativePath(asset.texturePath)
-	RenameShadingEngine(sEngine)
-	ExportShadersXML(asset.cachePath, asset.cacheName, sEngine, GetGeo(sEngine))
-
+	RenameShadingEngine(GetShadingEngine())
+	ExportShadersXML(asset.cachePath, asset.cacheName, GetShadingEngine())
+	ExportSetsXML(asset.cachePath, asset.cacheName, GetSets(asset.assetName))
+	ExportShadersMA(asset.cachePath, asset.cacheName, GetShadingEngine())
 	print "------------------------------"
+	print  "Export Location:", asset.cachePath
 	print "### LOOKDEV CACHE FINISHED ###'\n"
+
+	OutputExportLocation()
 
 
 def CheckContext(assetName):
@@ -89,7 +86,7 @@ def CheckShaderName(assetName , shaders):
 	errorList = []
 
 	for i in shaders:
-		if assetName not in i:
+		if assetName not in i and "SRF" not in i and "FUR" not in i:
 			errorList.append(i)
 
 	if len(errorList) < 1:
@@ -102,6 +99,7 @@ def CheckShaderName(assetName , shaders):
 		mc.warning("Ending LookDev Export Process")
 		print "------------------------------"
 		exit("LookDev Export Ended Fix Issues")
+
 
 def SetRelativePath(texturePath):
 	mc.setAttr("defaultArnoldRenderOptions.absoluteTexturePaths", 0)
@@ -134,7 +132,7 @@ def GetShaders(shadingEngine):
 	return shaders
 
 
-def GetSets():
+def GetSets(asset):
 	sets = []
 
 	for i in mc.ls(type = "objectSet"):
@@ -143,15 +141,21 @@ def GetSets():
 
 	return sets
 
-def GetGeo(shadingEngine):
+
+def GetGeo(set):
 	geoSet = []
 
-	for i in shadingEngine:
-		mc.select(i, replace = True)
-		geoSet = mc.ls(selection = True, flatten = True)
+	if set:
+		mc.select(set, replace = True)
+		geoSet = (mc.ls(selection = True, flatten = True))
 		mc.select(clear = True)
 
 	return geoSet
+
+
+def GetOverrideAttr(set, parent):
+		for i in mc.listAttr(set, userDefined = True):
+			xml.SubElement(parent, "Attribute", name = "%s.%s" % (set, i), value = i)
 
 
 def RenameShadingEngine(shadingEngine):
@@ -167,38 +171,62 @@ def RenameShadingEngine(shadingEngine):
 			#print mc.listConnections(i, type = "aiStandardHair")[0]
 			newName = mc.listConnections(i, type = "aiStandardHair")[0] + "SG"
 
-		mc.rename(i, newName)
+		if i not in newName:
+			mc.rename(i, newName)
+			print "--- Renamed Shading Groups Start ---"
+			print "%s ---> %s" % (i, newName)
+			print "--- Renamed Shading Groups End ---"
 
 	sEngine = GetShadingEngine()
 
 
-def ExportShadersXML(path, cache, shadingEngine, geo):
+def OutputExportLocation():
+	mc.confirmDialog(title = "_( ^_^ )_ %s Exported!" % (asset.assetName),
+		button = "Woot!!!",
+		message = "# Asset Export Succesful #\n\n%s" % (asset.cachePath))
+
+
+def ExportShadersXML(path, cache, shadingEngine):
 	root = xml.Element("%s_%s_%s.xml" % (cache.split("_")[0], cache.split("_")[1]+"Shaders", cache.split("_")[2]))
 
 	for i in shadingEngine:
-		shadingEngine = xml.SubElement(root, 'ShadingEngine', name = i)
-		shader = xml.SubElement(shadingEngine, 'Shader', name = str(i.replace("SG", "")))
-		geoSet = xml.SubElement(shader, 'GeoSet', assignment = str(geo))
+		se = xml.SubElement(root, 'ShadingEngine', name = i)
+		shader = xml.SubElement(se, 'Shader', name = str(i.replace("SG", "")))
+		geometry = xml.SubElement(shader, 'Geo', assignment = str(GetGeo(i)))
 
 	#xml.dump(root)
 
 	tree = xml.ElementTree(root)
-	tree.write(os.path.join(path, "%s_%s_%s.xml" % (cache.split("_")[0], cache.split("_")[1]+"Shaders", cache.split("_")[2])))
+	tree.write(os.path.join(path, cache, "%s_%s_%s.xml" % (cache.split("_")[0], cache.split("_")[1]+"Shaders", cache.split("_")[2])))
 
-	print "Export Shader Assignments as XML: %s" % (path)
+	print "Expored Shader Assignments as XML"
 
 
-###WORK ON THIS ONE DOESNT WORK###
-def ExportSetsXML(path, cache, set, geo):
-	root = xml.Element("%s_%s_%s.xml" % (cache.split("_")[0], cache.split("_")[1]+"Sets", cache.split("_")[2]))
+def ExportSetsXML(path, cache, geoSet):
+	if geoSet:
+		root = xml.Element("%s_%s_%s.xml" % (cache.split("_")[0], cache.split("_")[1]+"Sets", cache.split("_")[2]))
 
-	for i in sg:
-		shadingEngine = xml.SubElement(root, 'ShadingEngine', name = i)
-		shader = xml.SubElement(shadingEngine, 'Shader', name = str(i.replace("SG", "")))
-		geoSet = xml.SubElement(shader, 'GeoSet', assignment = str(geo))
 
-	tree = xml.ElementTree(root)
-	tree.write(os.path.join(path, "%s_%s_%s.xml" % (cache.split("_")[0], cache.split("_")[1]+"Sets", cache.split("_")[2])))
+		for i in geoSet:
+			gs = xml.SubElement(root, 'OverrideSet', name = i)
+			GetOverrideAttr(i, gs)
+			geometry = xml.SubElement(gs, 'Geo', assignment = str(GetGeo(i)))
+
+		#xml.dump(root)
+
+		tree = xml.ElementTree(root)
+		tree.write(os.path.join(path, cache, "%s_%s_%s.xml" % (cache.split("_")[0], cache.split("_")[1]+"Sets", cache.split("_")[2])))
+
+		print "Export Override Sets as XML"
+
 
 def ExportShadersMA(path, cache, shadingEngine):
-	pass
+	mc.select(shadingEngine, replace = True, noExpand = True)
+	mc.file(os.path.join(path, cache, cache + ".ma"), 
+			force = True,
+			type = "mayaAscii", 
+			preserveReferences = True,
+			exportSelected = True)
+	mc.select(clear = True)
+
+	print "Exported LookDev Shaders"
