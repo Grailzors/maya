@@ -155,21 +155,17 @@ def GetGeo(set):
 
 def GetOverrideAttr(set, parent):
 		for i in mc.listAttr(set, userDefined = True):
-			xml.SubElement(parent, "Attribute", name = "%s.%s" % (set, i), value = i)
+			xml.SubElement(parent, "Attribute", name = "%s.%s" % (set, i), value = str(mc.getAttr("%s.%s" % (set, i))))
 
 
 def RenameShadingEngine(shadingEngine):
 	for i in shadingEngine:
 		newName = ""
 
-		if mc.listConnections(i, type = "aiStandardSurface"):
-			#print mc.listConnections(i, type = "aiStandardSurface")[0]
-			newName = mc.listConnections(i, type = "aiStandardSurface")[0] + "SG"
-
-
-		if mc.listConnections(i, type = "aiStandardHair"):
-			#print mc.listConnections(i, type = "aiStandardHair")[0]
-			newName = mc.listConnections(i, type = "aiStandardHair")[0] + "SG"
+		for t in ["aiStandardSurface", "aiStandardHair"]:
+			if mc.listConnections(i, type = t):
+				#print mc.listConnections(i, type = "aiStandardSurface")[0]
+				newName = mc.listConnections(i, type = t)[0] + "SG"
 
 		if i not in newName:
 			mc.rename(i, newName)
