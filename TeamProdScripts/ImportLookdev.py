@@ -48,9 +48,19 @@ shot = AssetData()
 
 
 def main():
-	print "HELLO WORLD"
-	print shot.cachePath
-	print GetLookDevCache()
+	print "\n### BEGINING LOOKDEV IMPORT ###"
+	print "------------------------------"
+	#print "HELLO WORLD"
+	#print shot.cachePath
+	#print GetLookDevCache()
+	lookdevs = LookDevCacheDict(GetLookDevCache())
+	lookDevPaths = CacheFilePaths(shot.cachePath, lookdevs)
+	print lookdevs
+	print lookDevPaths
+	#shaders = ParseShaderXML(cachePath)
+	#ImportShaders(shaders)
+	print "------------------------------"
+	print "### LOOKDEV IMPORT FINISHED ###'\n"
 
 
 def GetLookDevCache():
@@ -63,21 +73,86 @@ def GetLookDevCache():
 	return cacheList
 
 
-def GetAssets():
-	pass
+def GetCacheFiles(path):
+	files = []
 
+	for i in os.listdir(path):
+		files.append(i)
+
+	return files
+
+def LookDevCacheDict(lookdev):
+	dict = {}
+
+	for i in mc.ls("::*_MESH_GRP", type = "transform"):
+		for look in lookdev:	
+			if i.split("_")[0] in look:
+				dict[i] = look
+
+	return dict
+	
 
 def ParseOverrideSetsXML():
 	pass
 
 
-def ParseShaderXML():
-	pass
+def ParseShaderXML(path):
+	dict = {} 
+
+	print path
+
+	for p in path:
+		print p
+
+		root = xml.parse(p)
+		
+		for i in root.findall("ShadingEngine"):	
+			#THIS '.strip('][').split(',')' recreates the list
+			dict[i.attrib["name"]] = { i[0].tag :i[0].attrib["name"], i[0][0].tag : i[0][0].attrib["assignment"].strip('][').split(',') }
+
+	print "Read Shader XML"
+	return dict
 
 
-def ImportShaders():
-	pass
+def ImportShaders(list):
+	'''
+	importList = []
+	
+	print "Importing Shaders:"
+
+	for key, value in dict.items():
+		if value not in importList:
+			importList.append(value)
+			cachePath = os.path.join(path, value, "%s.ma" % value)
+			mc.file(cachePath, i = True, ignoreVersion = True, type = "mayaAscii", force = True)
+
+			print "Imported Shaders: %s" % value
+	'''
+	for i in list:
+		mc.file(i, i = True, ignoreVersion = True, type = "mayaAscii", force = True)
+
+		print "Imported Shaders: %s" % i		
+
+
+
+def CacheFilePaths(path, dict):
+	importList = []
+	pathsList = []
+	print "Creating Cache File Paths"
+
+	for key, value in dict.items():
+		if value not in importList:
+			importList.append(value)
+
+			## WRONG FILE BEING LOOKED AT GET LOOKDEV CACHE FILE NAME PRP000_LookDevShaders_003.xml ##
+			pathsList.append(os.path.join(path, value).replace("\\", "/"))
+
+	return pathsList
 
 
 def AssignShaders():
+	pass
+
+
+def AssignOverrideSet():
 	pass
