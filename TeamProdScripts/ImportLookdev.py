@@ -48,111 +48,159 @@ shot = AssetData()
 
 
 def main():
+	lookdevDict = GetLookDevCacheDict(shot.cachePath)
+	shaderDict = ParseShaderXML(shot.cachePath, lookdevDict)
+	setDict = 	ParseSetsXML(shot.cachePath, lookdevDict)
+
 	print "\n### BEGINING LOOKDEV IMPORT ###"
 	print "------------------------------"
-	#print "HELLO WORLD"
-	#print shot.cachePath
-	#print GetLookDevCache()
-	lookdevs = LookDevCacheDict(GetLookDevCache())
-	lookDevPaths = CacheFilePaths(shot.cachePath, lookdevs)
-	print lookdevs
-	print lookDevPaths
-	#shaders = ParseShaderXML(cachePath)
-	#ImportShaders(shaders)
+
+	#ImportShaders(shot.cachePath, lookdevDict)
+	#ConnectShaders(shaderDict) 
+	#AssignShaders(shaderDict)
+
+	CreateOverrideSets(setDict)
+
 	print "------------------------------"
 	print "### LOOKDEV IMPORT FINISHED ###'\n"
 
 
-def GetLookDevCache():
-	cacheList = []
-
-	for i in os.listdir(shot.cachePath):
-		if "LookDev" in i:
-			cacheList.append(i)
-
-	return cacheList
-
-
-def GetCacheFiles(path):
+def GetLookDevCacheDict(path):
 	files = []
+	
+	for cache in os.listdir(path):
+		dict = {}
+		dict[cache] = {"maXML" : "", "SetsXML" : "", "ShaderXML" : ""}
+		
+		if "LookDev" in cache:
+			for file in os.listdir(os.path.join(path, cache)):
+				if ".ma" in file:
+					dict[cache]["maXML"] = file
+				if "Sets" in file:	
+					dict[cache]["SetsXML"] = file
+				if "Shader" in file:
+					dict[cache]["ShaderXML"] = file
 
-	for i in os.listdir(path):
-		files.append(i)
+		files.append(dict)
 
+	print "Got LookDev Caches"
 	return files
 
-def LookDevCacheDict(lookdev):
-	dict = {}
 
-	for i in mc.ls("::*_MESH_GRP", type = "transform"):
-		for look in lookdev:	
-			if i.split("_")[0] in look:
-				dict[i] = look
+def ParseShaderXML(path, dict):
+	xmlDict = {}
 
-	return dict
-	
-
-def ParseOverrideSetsXML():
-	pass
-
-
-def ParseShaderXML(path):
-	dict = {} 
-
-	print path
-
-	for p in path:
-		print p
-
-		root = xml.parse(p)
-		
-		for i in root.findall("ShadingEngine"):	
-			#THIS '.strip('][').split(',')' recreates the list
-			dict[i.attrib["name"]] = { i[0].tag :i[0].attrib["name"], i[0][0].tag : i[0][0].attrib["assignment"].strip('][').split(',') }
+	for i in dict:
+		for k, v in i.items():
+			root = xml.parse(os.path.join(path, k, v["ShaderXML"]).replace("\\", "/"))
+			
+			for i in root.findall("ShadingEngine"):	
+				#THIS '.strip('][').split(',')' recreates the list
+				xmlDict[i.attrib["name"]] = { i[0].tag :i[0].attrib["name"], i[0][0].tag : i[0][0].attrib["assignment"].strip('][').split(',') }
 
 	print "Read Shader XML"
-	return dict
+	return xmlDict
 
 
-def ImportShaders(list):
-	'''
-	importList = []
+def ParseSetsXML(path, dict):
+	xmlDict = {}
+
+	for i in dict:
+		for k, v in i.items():
+			root = xml.parse(os.path.join(path, k, v["SetsXML"]).replace("\\", "/"))
+			
+			for i in root.findall("OverrideSet"):	
+				#print "Geo", i[3].attrib["assignment"]
+
+				xmlDict[i.attrib["name"]] = { i[0].attrib["name"] : i[0].attrib["value"],
+											i[1].attrib["name"] : i[1].attrib["value"],
+											i[2].attrib["name"] : i[2].attrib["value"], 
+											"Geo" : i[3].attrib["assignment"].strip('][').split(',')
+											}
+
+	print "Read Sets XML"
+	return xmlDict
+
+
+def ImportShaders(path, dict):
+	for i in dict:
+		for k, v in i.items():
+			file = os.path.join(path, k, v["maXML"]).replace("\\", "/")
+			
+			mc.file(file, i = True, ignoreVersion = True, type = "mayaAscii", force = True)
+
+			print "Imported Shaders: %s" % v["maXML"]
+
+
+def ConnectShaders(dict):
+	print "--- Connecting Shaders ---"
 	
-	print "Importing Shaders:"
+	for k, v in dict.items():
+		mc.connectAttr("%s.outColor" % v["Shader"], "%s.surfaceShader" % k, force = True)
+		print v["Shader"], "---->", k
 
-	for key, value in dict.items():
-		if value not in importList:
-			importList.append(value)
-			cachePath = os.path.join(path, value, "%s.ma" % value)
-			mc.file(cachePath, i = True, ignoreVersion = True, type = "mayaAscii", force = True)
-
-			print "Imported Shaders: %s" % value
-	'''
-	for i in list:
-		mc.file(i, i = True, ignoreVersion = True, type = "mayaAscii", force = True)
-
-		print "Imported Shaders: %s" % i		
+	print "--- Connecting Shaders Done! ---"
 
 
+def AssignShaders(dict):
+	shapes = mc.ls(type = "shape")
 
-def CacheFilePaths(path, dict):
-	importList = []
-	pathsList = []
-	print "Creating Cache File Paths"
+	mc.select(clear = True)
 
-	for key, value in dict.items():
-		if value not in importList:
-			importList.append(value)
+	print "--- Assigning Shaders to Geo ---"
 
-			## WRONG FILE BEING LOOKED AT GET LOOKDEV CACHE FILE NAME PRP000_LookDevShaders_003.xml ##
-			pathsList.append(os.path.join(path, value).replace("\\", "/"))
+	for k, v in dict.items():		
+		print "Assigning:", v["Shader"]
 
-	return pathsList
+		if len(v["Geo"]) > 1:
+			#print v["Geo"]
+
+			for a in v["Geo"]:
+				name = a.split("'")[1]
+				asset = "::%s_%s*" % (name.split("_")[0], name.split("_")[1])
+
+				for i in mc.ls(asset, type = "shape"):
+					if ":" in i:
+						ns = i.split(":")[0]
+						geo = "%s:%s" % (ns, name)
+						#print "GEO:", geo
+						
+						mc.sets(geo, forceElement = k)
+
+					else:
+						mc.sets(i, forceElement = k)
+						#print name
+
+	print "--- Shaders Assigned  ---"
 
 
-def AssignShaders():
-	pass
+def CreateOverrideSets(dict):
+	mc.select(clear = True)
+
+	for k, v in dict.items():
+		if mc.objExists(k) == False:
+			mc.sets(name = k, empty = True)
+
+		for attr, value in v.items(): 
+			mc.select(k, noExpand = True, replace = True)
+			if "OVERRIDE" in attr:
+				#print attr.split(".")[1], int(value)
+
+				mc.addAttr(shortName = attr.split(".")[1], category = "arnold", defaultValue = int(value))
+
+				mc.select(clear = True)
+
+			elif "Geo" in attr:
+				print attr, value
+
+				#RUN INTO TROUBLE WITH THE WAY THE GEO IS BEING LISTED. IT LOOKS LIKE IT IS STILL BEING READ AS A STRING
+				#CAUSING THE MC.SET() NOT NOT RUN
+				#FIX IN THE PARSESETSXML()
+
+				for i in value:
+					print i
+				#mc.set(value, forceElement = k)
 
 
-def AssignOverrideSet():
+def AssignOverrideSet(overrideSet, Geo):
 	pass
