@@ -55,11 +55,10 @@ def main():
 	print "\n### BEGINING LOOKDEV IMPORT ###"
 	print "------------------------------"
 
-	#ImportShaders(shot.cachePath, lookdevDict)
-	#ConnectShaders(shaderDict) 
-	#AssignShaders(shaderDict)
-
-	CreateOverrideSets(setDict)
+	ImportShaders(shot.cachePath, lookdevDict)
+	ConnectShaders(shaderDict) 
+	AssignShaders(shaderDict)
+	AssignOverrideSets(setDict)
 
 	print "------------------------------"
 	print "### LOOKDEV IMPORT FINISHED ###'\n"
@@ -143,8 +142,6 @@ def ConnectShaders(dict):
 
 
 def AssignShaders(dict):
-	shapes = mc.ls(type = "shape")
-
 	mc.select(clear = True)
 
 	print "--- Assigning Shaders to Geo ---"
@@ -153,8 +150,6 @@ def AssignShaders(dict):
 		print "Assigning:", v["Shader"]
 
 		if len(v["Geo"]) > 1:
-			#print v["Geo"]
-
 			for a in v["Geo"]:
 				name = a.split("'")[1]
 				asset = "::%s_%s*" % (name.split("_")[0], name.split("_")[1])
@@ -174,7 +169,7 @@ def AssignShaders(dict):
 	print "--- Shaders Assigned  ---"
 
 
-def CreateOverrideSets(dict):
+def AssignOverrideSets(dict):
 	mc.select(clear = True)
 
 	for k, v in dict.items():
@@ -184,23 +179,19 @@ def CreateOverrideSets(dict):
 		for attr, value in v.items(): 
 			mc.select(k, noExpand = True, replace = True)
 			if "OVERRIDE" in attr:
-				#print attr.split(".")[1], int(value)
-
-				mc.addAttr(shortName = attr.split(".")[1], category = "arnold", defaultValue = int(value))
+				if mc.attributeQuery(attr.split(".")[1], node =  attr.split(".")[0], exists = True) == False:
+					mc.addAttr(shortName = attr.split(".")[1], category = "arnold", defaultValue = int(value))
 
 				mc.select(clear = True)
 
-			elif "Geo" in attr:
-				print attr, value
+			elif "Geo" in attr:			
+				for v in value:
+					geo = "::%s_%s*" % (v.strip("u'").split("_")[0], v.strip("u'").split("_")[1])
+				
+					for shape in mc.ls(geo, type = "shape"):
+						if ":" in shape:
+							mc.sets(shape, forceElement = k)
 
-				#RUN INTO TROUBLE WITH THE WAY THE GEO IS BEING LISTED. IT LOOKS LIKE IT IS STILL BEING READ AS A STRING
-				#CAUSING THE MC.SET() NOT NOT RUN
-				#FIX IN THE PARSESETSXML()
+					mc.sets(geo, forceElement = k)
 
-				for i in value:
-					print i
-				#mc.set(value, forceElement = k)
-
-
-def AssignOverrideSet(overrideSet, Geo):
-	pass
+	print "--- Override Sets Assigned  ---"
