@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as xml
 import maya.cmds as mc
+import maya.mel as mm
 import os
 
 
@@ -59,6 +60,10 @@ def main():
 	ConnectShaders(shaderDict) 
 	AssignShaders(shaderDict)
 	AssignOverrideSets(setDict)
+
+	print "--- Cleaning Nodes ---"
+	mm.eval('hyperShadePanelMenuCommand("hyperShadePanel1", "deleteUnusedNodes");')
+	print "--- Nodes Cleaned ---"
 
 	print "------------------------------"
 	print "### LOOKDEV IMPORT FINISHED ###'\n"
