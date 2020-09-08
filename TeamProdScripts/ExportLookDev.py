@@ -56,7 +56,7 @@ def main():
 	ExportSetsXML(asset.cachePath, asset.cacheName, GetSets(asset.assetName))
 	ExportShadersMA(asset.cachePath, asset.cacheName, GetShadingEngine())
 	print "------------------------------"
-	print  "Export Location:", asset.cachePath
+	print  "Export Location:", asset.cachePath.replace("\\", "/")
 	print "### LOOKDEV CACHE FINISHED ###'\n"
 
 	OutputExportLocation()
@@ -86,7 +86,7 @@ def CheckShaderName(assetName , shaders):
 	errorList = []
 
 	for i in shaders:
-		if assetName not in i and "SRF" not in i and "FUR" not in i:
+		if "SRF_%s" % (assetName) not in i and "FUR_%s" % (assetName) not in i: 
 			errorList.append(i)
 
 	if len(errorList) < 1:
@@ -120,14 +120,12 @@ def GetShadingEngine():
 
 def GetShaders(shadingEngine):
 	shaders = []
+	typeList = ["aiLayerShader", "aiMixShader", "aiStandardSurface", "aiStandardHair"] 
 
-	for i in shadingEngine:
-		if mc.listConnections(i, type = "aiStandardSurface"):
-			shaders.append(mc.listConnections(i, type = "aiStandardSurface")[0])
-
-		
-		if mc.listConnections(i, type = "aiStandardHair"):
-			shaders.append(mc.listConnections(i, type = "aiStandardHair")[0])
+	for engine in shadingEngine:
+		for type in typeList:
+			if mc.listConnections(engine, type = type):
+				shaders.append(mc.listConnections(engine, type = type)[0])
 
 	return shaders
 
@@ -162,7 +160,7 @@ def RenameShadingEngine(shadingEngine):
 	for i in shadingEngine:
 		newName = ""
 
-		for t in ["aiStandardSurface", "aiStandardHair"]:
+		for t in ["aiLayerShader", "aiMixShader", "aiStandardSurface", "aiStandardHair"]:
 			if mc.listConnections(i, type = t):
 				#print mc.listConnections(i, type = "aiStandardSurface")[0]
 				newName = mc.listConnections(i, type = t)[0] + "SG"
@@ -179,7 +177,7 @@ def RenameShadingEngine(shadingEngine):
 def OutputExportLocation():
 	mc.confirmDialog(title = "_( ^_^ )_ %s Exported!" % (asset.assetName),
 		button = "Woot!!!",
-		message = "# Asset Export Succesful #\n\n%s" % (asset.cachePath))
+		message = "# Asset Export Succesful #\n\n%s" % (asset.cachePath.replace("\\", "/")))
 
 
 def ExportShadersXML(path, cache, shadingEngine):
