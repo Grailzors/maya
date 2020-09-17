@@ -86,8 +86,9 @@ def CheckShaderName(assetName , shaders):
 	errorList = []
 
 	for i in shaders:
-		if "SRF_%s" % (assetName) not in i and "FUR_%s" % (assetName) not in i: 
-			errorList.append(i)
+		if "LD_" not in i:
+			if "SRF_%s" % (assetName) not in i and "FUR_%s" % (assetName) not in i: 
+				errorList.append(i)
 
 	if len(errorList) < 1:
 		print "Shader Names Checked"
@@ -125,7 +126,8 @@ def GetShaders(shadingEngine):
 	for engine in shadingEngine:
 		for type in typeList:
 			if mc.listConnections(engine, type = type):
-				shaders.append(mc.listConnections(engine, type = type)[0])
+				if "LD_" not in mc.listConnections(engine, type = type)[0]:	
+					shaders.append(mc.listConnections(engine, type = type)[0])
 
 	return shaders
 
@@ -184,9 +186,10 @@ def ExportShadersXML(path, cache, shadingEngine):
 	root = xml.Element("%s_%s_%s.xml" % (cache.split("_")[0], cache.split("_")[1]+"Shaders", cache.split("_")[2]))
 
 	for i in shadingEngine:
-		se = xml.SubElement(root, 'ShadingEngine', name = i)
-		shader = xml.SubElement(se, 'Shader', name = str(i.replace("SG", "")))
-		geometry = xml.SubElement(shader, 'Geo', assignment = str(GetGeo(i)))
+		if "LD_" not in i:
+			se = xml.SubElement(root, 'ShadingEngine', name = i)
+			shader = xml.SubElement(se, 'Shader', name = str(i.replace("SG", "")))
+			geometry = xml.SubElement(shader, 'Geo', assignment = str(GetGeo(i)))
 
 	#xml.dump(root)
 
