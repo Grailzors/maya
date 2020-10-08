@@ -49,9 +49,16 @@ shot = AssetData()
 
 
 def main():
+	print "\n"
 	lookdevDict = GetLookDevCacheDict(shot.cachePath)
+	#print lookdevDict
 	shaderDict = ParseShaderXML(shot.cachePath, lookdevDict)
-	setDict = 	ParseSetsXML(shot.cachePath, lookdevDict)
+	#print shaderDict
+	setDict =	ParseSetsXML(shot.cachePath, lookdevDict)
+	#print setDict
+	
+	
+	
 
 	print "\n### BEGINING LOOKDEV IMPORT ###"
 	print "------------------------------"
@@ -93,7 +100,7 @@ def GetLookDevCacheDict(path):
 
 def ParseShaderXML(path, dict):
 	xmlDict = {}
-
+	
 	for i in dict:
 		for k, v in i.items():
 			root = xml.parse(os.path.join(path, k, v["ShaderXML"]).replace("\\", "/"))
@@ -108,19 +115,21 @@ def ParseShaderXML(path, dict):
 
 def ParseSetsXML(path, dict):
 	xmlDict = {}
-
+	
 	for i in dict:
 		for k, v in i.items():
-			root = xml.parse(os.path.join(path, k, v["SetsXML"]).replace("\\", "/"))
-			
-			for i in root.findall("OverrideSet"):	
-				#print "Geo", i[3].attrib["assignment"]
+			print v["SetsXML"]
+			if v["SetsXML"]:
+				root = xml.parse(os.path.join(path, k, v["SetsXML"]).replace("\\", "/"))
+				
+				for i in root.findall("OverrideSet"):	
+					#print "Geo", i[3].attrib["assignment"]
 
-				xmlDict[i.attrib["name"]] = { i[0].attrib["name"] : i[0].attrib["value"],
-											i[1].attrib["name"] : i[1].attrib["value"],
-											i[2].attrib["name"] : i[2].attrib["value"], 
-											"Geo" : i[3].attrib["assignment"].strip('][').split(',')
-											}
+					xmlDict[i.attrib["name"]] = { i[0].attrib["name"] : i[0].attrib["value"],
+												i[1].attrib["name"] : i[1].attrib["value"],
+												i[2].attrib["name"] : i[2].attrib["value"], 
+												"Geo" : i[3].attrib["assignment"].strip('][').split(',')
+												}
 
 	print "Read Sets XML"
 	return xmlDict
@@ -171,32 +180,33 @@ def AssignShaders(dict):
 						mc.sets(i, forceElement = k)
 						#print name
 
-	print "--- Shaders Assigned  ---"
+	print "--- Shaders Assigned	 ---"
 
 
 def AssignOverrideSets(dict):
 	mc.select(clear = True)
 
-	for k, v in dict.items():
-		if mc.objExists(k) == False:
-			mc.sets(name = k, empty = True)
+	if dict:
+		for k, v in dict.items():
+			if mc.objExists(k) == False:
+				mc.sets(name = k, empty = True)
 
-		for attr, value in v.items(): 
-			mc.select(k, noExpand = True, replace = True)
-			if "OVERRIDE" in attr:
-				if mc.attributeQuery(attr.split(".")[1], node =  attr.split(".")[0], exists = True) == False:
-					mc.addAttr(shortName = attr.split(".")[1], category = "arnold", defaultValue = int(value))
+			for attr, value in v.items(): 
+				mc.select(k, noExpand = True, replace = True)
+				if "OVERRIDE" in attr:
+					if mc.attributeQuery(attr.split(".")[1], node =	 attr.split(".")[0], exists = True) == False:
+						mc.addAttr(shortName = attr.split(".")[1], category = "arnold", defaultValue = int(value))
 
-				mc.select(clear = True)
+					mc.select(clear = True)
 
-			elif "Geo" in attr:			
-				for v in value:
-					geo = "::%s_%s*" % (v.strip("u'").split("_")[0], v.strip("u'").split("_")[1])
-				
-					for shape in mc.ls(geo, type = "shape"):
-						if ":" in shape:
-							mc.sets(shape, forceElement = k)
+				elif "Geo" in attr:			
+					for v in value:
+						geo = "::%s_%s*" % (v.strip("u'").split("_")[0], v.strip("u'").split("_")[1])
+					
+						for shape in mc.ls(geo, type = "shape"):
+							if ":" in shape:
+								mc.sets(shape, forceElement = k)
 
-					mc.sets(geo, forceElement = k)
+						mc.sets(geo, forceElement = k)
 
-	print "--- Override Sets Assigned  ---"
+		print "--- Override Sets Assigned  ---"
