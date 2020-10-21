@@ -116,6 +116,7 @@ def ParseShaderXML(path, dict):
 def ParseSetsXML(path, dict):
 	xmlDict = {}
 	
+
 	for i in dict:
 		for k, v in i.items():
 			print v["SetsXML"]
@@ -123,15 +124,21 @@ def ParseSetsXML(path, dict):
 				root = xml.parse(os.path.join(path, k, v["SetsXML"]).replace("\\", "/"))
 				
 				for i in root.findall("OverrideSet"):	
-					#print "Geo", i[3].attrib["assignment"]
-
-					xmlDict[i.attrib["name"]] = { i[0].attrib["name"] : i[0].attrib["value"],
-												i[1].attrib["name"] : i[1].attrib["value"],
-												i[2].attrib["name"] : i[2].attrib["value"], 
-												"Geo" : i[3].attrib["assignment"].strip('][').split(',')
-												}
+					#print "Geo", i[3]
+					
+					print i.attrib["name"]
+					xmlDict[i.attrib["name"]] = {}
+					
+					for a in i.findall("Attribute"):
+						print a.attrib["name"]
+						xmlDict[i.attrib["name"]].update( {a.attrib["name"]:a.attrib["value"]} )
+					
+					for g in i.findall("Geo"):
+						print g.attrib["assignment"]
+						xmlDict[i.attrib["name"]].update( {"GEO" : g.attrib["assignment"].strip('][').split(',')} )
 
 	print "Read Sets XML"
+
 	return xmlDict
 
 
@@ -166,20 +173,25 @@ def AssignShaders(dict):
 		if len(v["Geo"]) > 1:
 			for a in v["Geo"]:
 				name = a.split("'")[1]
-				asset = "::%s_%s*" % (name.split("_")[0], name.split("_")[1])
+				if "xgGuide" not in a: 
+					asset = "::%s_%s*" % (name.split("_")[0], name.split("_")[1])
 
-				for i in mc.ls(asset, type = "shape"):
-					if ":" in i:
-						ns = i.split(":")[0]
-						geo = "%s:%s" % (ns, name)
-						#print "GEO:", geo
-						
-						mc.sets(geo, forceElement = k)
+					for i in mc.ls(asset, type = "shape"):
+						if ":" in i:
+							ns = i.split(":")[0]
+							geo = "%s:%s" % (ns, name)
+							#print "GEO:", geo
+							
+							mc.sets(geo, forceElement = k)
 
-					else:
+						else:
+							mc.sets(i, forceElement = k)
+							#print name
+				
+				elif "xgGuide" in a:
+					for i in mc.ls(asset, type = "shape"):
 						mc.sets(i, forceElement = k)
-						#print name
-
+					
 	print "--- Shaders Assigned	 ---"
 
 
@@ -188,14 +200,23 @@ def AssignOverrideSets(dict):
 
 	if dict:
 		for k, v in dict.items():
+			
 			if mc.objExists(k) == False:
 				mc.sets(name = k, empty = True)
 
-			for attr, value in v.items(): 
+			for attr, value in v.items():				
 				mc.select(k, noExpand = True, replace = True)
 				if "OVERRIDE" in attr:
 					if mc.attributeQuery(attr.split(".")[1], node =	 attr.split(".")[0], exists = True) == False:
-						mc.addAttr(shortName = attr.split(".")[1], category = "arnold", defaultValue = int(value))
+						
+						if value == "True":
+							value = 1
+						elif value == "False":
+							value = 0
+						else:
+							value = float(value)
+							
+						mc.addAttr(shortName = attr.split(".")[1], category = "arnold", defaultValue = value)
 
 					mc.select(clear = True)
 
